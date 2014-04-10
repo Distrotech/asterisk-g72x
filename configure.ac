@@ -124,6 +124,7 @@ AX_CHECK_COMPILER_FLAGS(-march=atom,      [march_atom=atom],       [march_core2=
 AX_CHECK_COMPILER_FLAGS(-march=k8-sse3,   [march_k8_sse3=k8-sse3], [march_k8_sse3=k8])
 AX_CHECK_COMPILER_FLAGS(-march=barcelona, [march_k10=barcelona],   [march_k10=$march_k8_sse3])
 AX_CHECK_COMPILER_FLAGS(-march=geode,     [march_geode=geode],     [march_geode=k6-3; mtune_generic=-mtune=generic])
+AX_CHECK_COMPILER_FLAGS(-march=octeon,    [march_octeon=octeon],   [march_octeon=octeon])
 
 if test "$CC" = "icc"; then
     if test -z "$CFLAGS"; then
@@ -183,6 +184,9 @@ AC_ARG_ENABLE([pentium2],
 AC_ARG_ENABLE([pentium],
     AS_HELP_STRING([--enable-pentium], [Optimize for Intel Pentium]),
     [march=pentium-mmx; ipp_core=px; ipp_cdefs=-DIPPCORE_NO_SSE; cflags=""])
+AC_ARG_ENABLE([octeon],
+    AS_HELP_STRING([--enable-octeon], [Optimize for Cavium Octeon]),
+    [march=$march_octeon; ipp_core=px; ipp_cdefs=-DIPPCORE_NO_SSE; cflags="-march=octeon"])
 
 if test -z "$G72X_BCG729"; then
     if test -z "$ipp_core"; then
@@ -370,7 +374,12 @@ else # G72X_BCG729 is defined
 fi
 
 if test -z "$saved_cflags"; then
-    CFLAGS="-O3 -fomit-frame-pointer -march=$march $flto $cflags"
+    CFLAGS="-O3 -fomit-frame-pointer $flto $cflags"
+echo ${march} XXXXX
+read
+    if test ! -z "$march"; then
+      CFLAGS="${CFLAGS} -march=$march";
+    fi;
     FLTO_LDFLAGS="$fwholeprg"
 fi
 
